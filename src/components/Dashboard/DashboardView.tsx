@@ -1,4 +1,4 @@
-// DashboardView — FSM 칼럼 기반 대시보드 메인 뷰
+// DashboardView — FSM 칼럼 기반 대시보드 메인 뷰 [v3]
 import { useDashboard } from '../../hooks/useDashboard';
 import type { DashboardCard } from '../../hooks/useDashboard';
 import { DashboardCardTile } from './DashboardCardTile';
@@ -14,13 +14,20 @@ export function DashboardView() {
         modalCardId,
         collapseEmpty,
         errorMessage,
+        toastMessage,
         setCollapseEmpty,
         setErrorMessage,
+        setToastMessage,
         handleAddManual,
         handleAddFromPicker,
         handleRemoveProject,
         openDetail,
         closeDetail,
+        loadMessages,
+        handleImportLog,
+        handleRefreshProject,
+        handleApprove,
+        handleReject,
     } = useDashboard();
 
     const modalCard = modalCardId ? (board.cards[modalCardId] as DashboardCard) : null;
@@ -68,8 +75,22 @@ export function DashboardView() {
                 ))}
             </div>
 
+            {toastMessage && (
+                <div className="dashboard__toast" onClick={() => setToastMessage(null)}>
+                    {toastMessage}
+                </div>
+            )}
+
             {modalCard && (
-                <DashboardDetailModal card={modalCard} onClose={closeDetail} />
+                <DashboardDetailModal
+                    card={modalCard}
+                    onClose={closeDetail}
+                    loadMessages={loadMessages}
+                    onImportLog={handleImportLog}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    onRefresh={handleRefreshProject}
+                />
             )}
         </div>
     );

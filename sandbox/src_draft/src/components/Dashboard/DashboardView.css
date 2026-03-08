@@ -113,3 +113,22 @@
     gap: 8px;
     min-height: 60px;
 }
+
+/* v3: 토스트 메시지 */
+.dashboard__toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 46, 0.95);
+    border: 1px solid rgba(138, 96, 255, 0.3);
+    color: #e0e0e6;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    z-index: 200;
+    cursor: pointer;
+    animation: slideUp 0.25s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
