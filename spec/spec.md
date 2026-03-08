@@ -1189,28 +1189,79 @@ $Dashboard.FileRefresh:
 [x] 통합: 파일_피커_임포트_→_파싱_→_대시보드_칼럼_배치
 [x] 통합: 복수_프로젝트_등록_→_FSM_상태별_칼럼_정확_분류
 
-# --- v3 테스트 (신규) ---
-# 대화 로그 파싱
-[_] 단위: $LocalLogAdapter.parse_log JSON_정상_→_Message_배열_변환
-[_] 단위: $LocalLogAdapter.parse_log JSON_필수필드_누락_→_건너뛰기
-[_] 단위: $LocalLogAdapter.parse_log JSON_배열_아닌_입력_→_빈배열
-[_] 단위: $LocalLogAdapter.parse_log JSON_role_정규화 (assistant→agent)
-[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_정규형식_파싱
-[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_타임스탬프_없는_경우_자동생성
-[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_대소문자_혼용_role_정규화
-[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_복수_diff_블록_concat
-[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_알수없는_role_→_agent_fallback
-# FSM 전이 액션
-[_] 단위: $Dashboard.Actions.approve SPEC_REVIEW→IMPLEMENTING
-[_] 단위: $Dashboard.Actions.approve ADVERSARIAL_REVIEW→PENDING_APPROVAL
-[_] 단위: $Dashboard.Actions.approve PENDING_APPROVAL→MERGED
-[_] 단위: $Dashboard.Actions.reject SPEC_REVIEW→BACKLOG
-[_] 단위: $Dashboard.Actions.reject ADVERSARIAL_REVIEW→IMPLEMENTING
-[_] 단위: $Dashboard.Actions.reject PENDING_APPROVAL→IMPLEMENTING
-[_] 단위: $Dashboard.Actions.is_actionable 비활성_상태_→_false (IMPLEMENTING 등)
-# 통합
-[_] 통합: 대화_로그_임포트_→_chat_탭_메시지_표시
-[_] 통합: 리프레시_→_state.md_갱신_→_카드_칼럼_이동_확인
-[_] 통합: 리프레시_→_approve_일시_상태_초기화_확인
-[_] 통합: _registeredId_매핑_→_로그_임포트_→_올바른_프로젝트_연결
+# ============================================================
+# v4 미래 비전 (FROZEN — 현재 기술적 한계로 보류)
+# ============================================================
 
+## 원래 비전: 에이전트 오케스트레이터
+
+현판의 궁극적 목표는 단순 칸반 뷰어가 아니라,
+**에이전트 세션을 관리하는 오케스트레이터**였다.
+
+```
+현재 (v3): 사용자 ──(수동)──→ 파일 임포트 ──→ 읽기 전용 뷰어
+목표 (v4): 사용자 ──(approve)──→ 에이전트 세션 생성 ──→ 자동 리뷰/구현 ──→ 결과 주입
+```
+
+## v4 요구사항 (미구현)
+
+### 4-1. 에이전트 세션 연동
+- approve/reject 클릭 → **새 에이전트 세션 자동 생성**
+- 에이전트가 해당 프로젝트의 DENAVY.md, spec, constraints 등을 읽고 자동 리뷰 수행
+- 리뷰 결과가 구현 에이전트의 프롬프트로 자동 주입
+
+### 4-2. state.md 직접 쓰기
+- File System Access API 또는 로컬 서버를 통해 state.md에 상태 전이 반영
+- 세션 한정이 아닌 **영속적 상태 변경**
+
+### 4-3. 원클릭 전체 리프레시
+- FileSystemDirectoryHandle 또는 로컬 서버로 디렉토리 워치
+- 버튼 하나로 모든 등록 프로젝트의 state.md 재읽기
+
+### 4-4. 동적 파이프라인 칼럼
+- DENAVY.md에서 파이프라인 단계를 동적으로 읽기
+- 8칼럼 고정이 아닌 프로젝트별 커스텀 단계 지원
+
+### 4-5. 병렬 task 지원
+- 같은 프로젝트 내 복수 task 동시 진행
+- state.md 멀티 task 구문 또는 task별 개별 state 파일
+
+## 기술적 전제조건
+
+1. **로컬 서버 또는 Electron**: 브라우저 샌드박스 탈출 필수
+2. **에이전트 API**: Antigravity/Claude 등 에이전트 세션 생성 API 접근
+3. **파일 시스템 워치**: chokidar 또는 fs.watch 기반 실시간 감시
+4. **DENAVY 스펙 확장**: 멀티 task, 동적 파이프라인 지원
+
+## 판정
+
+> 현재 브라우저 앱 아키텍처로는 해결 불가.
+> Electron 또는 로컬 서버 + CLI 브리지 전환 시 재개.
+> v3까지의 작업은 데이터 모델과 파서 기반으로서 유효.
+
+---
+
+# --- v3 테스트 (22/22 통과) ---
+# 대화 로그 파싱
+[x] 단위: $LocalLogAdapter.parse_log JSON_정상_→_Message_배열_변환
+[x] 단위: $LocalLogAdapter.parse_log JSON_필수필드_누락_→_건너뛰기
+[x] 단위: $LocalLogAdapter.parse_log JSON_배열_아닌_입력_→_빈배열
+[x] 단위: $LocalLogAdapter.parse_log JSON_role_정규화 (assistant→agent)
+[x] 단위: $LocalLogAdapter.parse_markdown_chat MD_정규형식_파싱
+[x] 단위: $LocalLogAdapter.parse_markdown_chat MD_타임스탬프_없는_경우_자동생성
+[x] 단위: $LocalLogAdapter.parse_markdown_chat MD_대소문자_혼용_role_정규화
+[x] 단위: $LocalLogAdapter.parse_markdown_chat MD_복수_diff_블록_concat
+[x] 단위: $LocalLogAdapter.parse_markdown_chat MD_알수없는_role_→_agent_fallback
+# FSM 전이 액션
+[x] 단위: $Dashboard.Actions.approve SPEC_REVIEW→IMPLEMENTING
+[x] 단위: $Dashboard.Actions.approve ADVERSARIAL_REVIEW→PENDING_APPROVAL
+[x] 단위: $Dashboard.Actions.approve PENDING_APPROVAL→MERGED
+[x] 단위: $Dashboard.Actions.reject SPEC_REVIEW→BACKLOG
+[x] 단위: $Dashboard.Actions.reject ADVERSARIAL_REVIEW→IMPLEMENTING
+[x] 단위: $Dashboard.Actions.reject PENDING_APPROVAL→IMPLEMENTING
+[x] 단위: $Dashboard.Actions.is_actionable 비활성_상태_→_false (IMPLEMENTING 등)
+# 통합
+[x] 통합: 대화_로그_임포트_→_chat_탭_메시지_표시
+[x] 통합: 리프레시_→_state.md_갱신_→_카드_칼럼_이동_확인
+[x] 통합: 리프레시_→_approve_일시_상태_초기화_확인
+[x] 통합: _registeredId_매핑_→_로그_임포트_→_올바른_프로젝트_연결
