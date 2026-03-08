@@ -1,0 +1,115 @@
+.dashboard {
+    min-height: 100vh;
+    padding: 20px;
+    background: var(--bg-primary, #0f0f1a);
+}
+
+.dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dashboard__title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary, #e0e0e6);
+}
+
+.dashboard__subtitle {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #888;
+    margin-left: 8px;
+}
+
+.dashboard__collapse-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #888;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.dashboard__collapse-toggle input {
+    cursor: pointer;
+}
+
+.dashboard__columns {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    align-items: flex-start;
+}
+
+.dashboard__column {
+    min-width: 200px;
+    max-width: 260px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard__column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.column-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+}
+
+.column-title--backlog {
+    color: #777;
+}
+
+.column-title--spec_analyze,
+.column-title--spec_review {
+    color: #6ab0ff;
+}
+
+.column-title--implementing,
+.column-title--test_running {
+    color: #6cdb8a;
+}
+
+.column-title--adversarial_review {
+    color: #ffc060;
+}
+
+.column-title--pending_approval {
+    color: #ff8070;
+}
+
+.column-title--merged {
+    color: #60d0a0;
+}
+
+.column-count {
+    background: rgba(255, 255, 255, 0.06);
+    color: #666;
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+}
+
+.dashboard__column-body {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 60px;
+}

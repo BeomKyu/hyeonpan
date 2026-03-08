@@ -1,11 +1,15 @@
+import { getViewMode } from './config/adapter';
 import { BoardProvider } from './hooks/useBoard';
 import { BoardHeader } from './components/Board/BoardHeader';
 import { ColumnList } from './components/Board/ColumnList';
 import { DetailModal } from './components/Card/DetailModal';
+import { DashboardView } from './components/Dashboard/DashboardView';
 import { useBoard } from './hooks/useBoard';
 import './App.css';
 
-function AppContent() {
+const viewMode = getViewMode();
+
+function ManualModeContent() {
   const { modalCardId } = useBoard();
 
   return (
@@ -18,9 +22,13 @@ function AppContent() {
 }
 
 function App() {
+  if (viewMode === 'dashboard') {
+    return <DashboardView />;
+  }
+
   return (
     <BoardProvider>
-      <AppContent />
+      <ManualModeContent />
     </BoardProvider>
   );
 }
