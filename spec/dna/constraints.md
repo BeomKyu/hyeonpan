@@ -78,9 +78,86 @@ MUST 빈_프로젝트_리스트_시_온보딩_가이드
 MUST 초기_로딩 < 2s
 MUST state.md_파싱 < 200ms_per_file
 
-# === MVP 범위 제외 ===
+# === MVP 범위 제외 (v2) ===
 
 # [MVP_외] 자동_스캔_A (서버사이드_필요)
 # [MVP_외] state.md_실시간_파일_워치
 # [MVP_외] 프로젝트_간_의존성_시각화
 # [MVP_외] 다중_task_per_project (미래 확장)
+
+# ============================================================
+# v3 제약조건 (대화 통합 + 리프레시)
+# ============================================================
+
+# === 대화 로그 소스 ($Data.ConversationLogSource) ===
+
+MUST 어댑터_패턴_추상화 (ConversationLogSource 인터페이스)
+MUST LocalLogAdapter_구현 (.md, .json 파일 임포트)
+MUST .md_대화_로그_정규_형식:
+  # ## user 또는 ## agent (소문자 고정) → role
+  # 헤더 다음 줄 ISO8601 → timestamp (없으면 현재 시각)
+  # 이후 내용 → content (다음 ## 헤더 전까지)
+  # ```diff 블록 → diff 필드
+  # 알 수 없는 role (system, assistant 등) → agent fallback
+  # 대소문자 혼용 (## User) → 소문자 정규화
+MUST .md_복수_diff_블록 → 연결(concat)하여_단일_diff_필드로_병합
+MUST .json_대화_로그_스키마:
+  # 필수: role ('user'|'agent'), content (string)
+  # 선택: diff, timestamp (없으면 현재 시각)
+  # role 'assistant'/'system' → 'agent' 매핑
+  # 필수_필드_누락_메시지 → 건너뛰기 + console.warn
+  # 배열_아닌_JSON → 빈 배열
+BAN 파싱_실패_시_앱_크래시 (graceful fallback → 빈 배열)
+
+# === 대시보드 ChatView ($Dashboard.ChatView) ===
+
+MUST 읽기_전용_대화_표시
+MUST v1_MessageBubble_컴포넌트_재사용
+MUST 대화_없을_때_임포트_유도_UI
+BAN 수동_메시지_입력 (v3 범위 외)
+BAN AI_LLM_API_연동 (별도 API 비용 발생 차단)
+
+# === FSM 전이 액션 ($Dashboard.Actions) ===
+
+MUST approve_reject_버튼_3상태_한정_활성화 (SPEC_REVIEW, ADVERSARIAL_REVIEW, PENDING_APPROVAL)
+MUST FSM_전이_맵:
+  # approve: SPEC_REVIEW → IMPLEMENTING
+  # approve: ADVERSARIAL_REVIEW → PENDING_APPROVAL
+  # approve: PENDING_APPROVAL → MERGED
+  # reject: SPEC_REVIEW → BACKLOG
+  # reject: ADVERSARIAL_REVIEW → IMPLEMENTING
+  # reject: PENDING_APPROVAL → IMPLEMENTING
+MUST 전이_후_토스트_알림 ("state.md 파일도 수정해주세요")
+MUST approve_reject_세션_한정 (localStorage 영속 안 함)
+MUST 리프레시_시_state.md_내용으로_강제_덮어쓰기
+BAN 브라우저에서_실제_state.md_파일_수정 (보안/샌드박스 제약)
+BAN 로컬_전이_상태_영속화
+
+# === 파일 리프레시 ($Data.FileRefresh) ===
+
+MUST 개별_프로젝트_리프레시 (파일 피커 재선택)
+MUST 리프레시_후_대시보드_보드_재빌드
+MUST 리프레시_실패_시_에러_토스트
+BAN refresh_all (MVP — 파일 피커 N회 반복 UX 재앙)
+# [미래] File System Access API FileHandle → 자동 재읽기 시 전체 리프레시 재도입
+
+# === 데이터 모델 확장 ===
+
+MUST RegisteredProject += logContent (String|null), logFormat ('md'|'json')
+MUST DashboardCard += _registeredId (RegisteredProject.id 매핑)
+MUST 기존_데이터_하위_호환 (신규 필드 기본값)
+MUST 대화_로그_프로젝트_1:1 (재임포트 시 기존 로그 덮어쓰기)
+BAN v2_RegisteredProject_필드_삭제_변경
+
+# === 성능 (v3) ===
+
+MUST 대화_로그_파일_크기 < 5MB
+MUST 대화_로그_파싱 < 500ms
+# 초과 시 에러 토스트 + 임포트 거부
+
+# === MVP 범위 제외 (v3) ===
+
+# [MVP_외] refresh_all (FileHandle 기반 자동 재읽기 필요)
+# [MVP_외] 수동_메시지_입력 (v1 모드에서만 가능)
+# [MVP_외] AI_LLM_API_채팅_연동
+# [MVP_외] CLI_Agent_브릿지

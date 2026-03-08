@@ -4,7 +4,7 @@
 
 NOW 2026-03-08
 task: hyeonpan_state_adapter_v2
-state: MERGED
+state: SPEC_ANALYZE
 spec_hash: none
 git_ref: none
 retry: 0 / max: 5
