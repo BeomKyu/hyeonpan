@@ -4,25 +4,25 @@
 
 NOW 2026-03-08
 task: hyeonpan_state_adapter_v2
-state: MERGED
+state: SPEC_ANALYZE
 spec_hash: none
 git_ref: none
 retry: 0 / max: 5
 actor: HUMAN
-time: 2026-03-08T15:19:00+09:00
+time: 2026-03-08T15:21:00+09:00
 
 meta:
-  test_res: PASS (23/23)
-  review_score: 9/10
+  test_res: none
+  review_score: none
   err_log: none
 
 # === @PROGRESS ===
 
-[x] Stage_1_제약조건_도출
-[x] Stage_2_명세_작성_및_승인
-[x] Stage_3_코드_구현
-[x] Stage_3_적대적_검증
-[x] Final_Gate_최종_승인_및_병합
+[-] Stage_1_제약조건_도출
+[_] Stage_2_명세_작성_및_승인
+[_] Stage_3_코드_구현
+[_] Stage_3_적대적_검증
+[_] Final_Gate_최종_승인_및_병합
 
 # === @FEATURES ===
 
@@ -36,8 +36,13 @@ meta:
 [x] $Card.DiffDisplay / test: pass
 [x] $Data.AdapterPattern / test: pass
 
-# v2 StateFileAdapter (신규)
-[_] $Data.StateFileAdapter: .denavy/state.md 파싱_어댑터 / test: pending
-[_] $UI.FileImport: state.md 파일_임포트_UI / test: pending
-[_] $UI.ProjectSelector: 프로젝트_선택_화면 / test: pending
+# v2 StateFileAdapter (완료)
+[x] $Data.StateFileAdapter / test: pass
+[x] $UI.FileImport / test: pass
+[x] $UI.ProjectSelector / test: pass
 
+# v3 대화 통합 + 리프레시 (신규)
+[_] $Data.ConversationLogSource: 대화_로그_소스_연결 / test: pending
+[_] $Dashboard.ChatView: 카드_내_대화_기록_표시 / test: pending
+[_] $Dashboard.Actions: approve/reject_FSM_전이_액션 / test: pending
+[_] $Data.FileRefresh: state.md_리프레시_기능 / test: pending

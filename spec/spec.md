@@ -2,7 +2,7 @@
 @SPEC
 
 NOW 2026-03-08
-$Hyeonpan.KanbanBoard: v4.0
+$Hyeonpan.KanbanBoard: v5.0
 
 # === 프로젝트 개요 ===
 # 노션 스타일 칸반보드 + 대화형 히스토리 뷰어.
@@ -813,6 +813,171 @@ $App.Root.v2:
         $Card.DetailModal(modal_card_id)
 
 # ============================================================
+# v3: 대화 로그 소스 (Conversation Log Source)
+# ============================================================
+
+# 카드(프로젝트)와 연결된 대화 기록의 출처를 추상화.
+# v3 MVP: 로컬 파일 (대화 로그 .md/.json 임포트)
+# 미래: API 서버 연동, 실시간 양방향 통신
+
+$ConversationLogSource:
+  # 어댑터 패턴 — v1 DataAdapter와 동일 사상
+  load_messages(project_id: String): List($Model.Message)
+  # 미래: save_message(), subscribe() 등 확장
+
+$LocalLogAdapter :+ $ConversationLogSource:
+  # 로컬 파일에서 대화 기록 로드
+  # 지원 포맷: .md (마크다운 대화 로그), .json (메시지 배열)
+
+  load_messages(project_id: String): List($Model.Message)
+    registered = $ProjectRegistry.find(project_id)
+    ? registered.log_content == null:
+      => []
+    => parse_log(registered.log_content, registered.log_format)
+
+  parse_log(content: String, format: String): List($Model.Message)
+    ? format == "json":
+      TX:
+        => content |> from_json()
+      FAIL:
+        /> console.warn("JSON 대화 로그 파싱 실패")
+        => []
+    ? format == "md":
+      => content |> parse_markdown_chat()
+    => []
+
+  # 마크다운 대화 로그 파싱 규칙:
+  # "## user" 또는 "## agent" 헤더 → role 결정
+  # 헤더 이후 내용 → content
+  # ``` 블록 내 diff → diff 필드
+  parse_markdown_chat(content: String): List($Model.Message)
+    # 구현 시 상세 파싱 로직
+
+$ApiLogAdapter :+ $ConversationLogSource:
+  # [미래] REST API에서 대화 기록 로드
+  url api_base = import.meta.env.VITE_CHAT_API_URL | ""
+
+  load_messages(project_id: String): List($Model.Message)
+    TX:
+      messages <- $HTTP.get(api_base + "/projects/" + project_id + "/messages")
+      => messages
+    FAIL err:
+      /> console.warn("대화 API 로드 실패:", err)
+      => []
+
+# ============================================================
+# v3: 대화 기록 임포트 — RegisteredProject 확장
+# ============================================================
+
+$Model.RegisteredProject.v3:
+  # v2 필드 유지 + 대화 로그 필드 추가
+  log_content: String | null = null     # 대화 로그 원본
+  log_format: String = "md"             # "md" | "json"
+
+$ProjectRegistry.v3:
+  # 대화 로그 임포트
+  import_log(project_id: String, file: File):
+    TX:
+      content <- file.text()
+      format = ? file.name |> ends_with(".json"): "json" | "md"
+      project = projects |> find(p: p.id == project_id)
+      project.log_content = content
+      project.log_format = format
+      save_projects()
+    FAIL err:
+      /> console.warn("대화 로그 임포트 실패:", err)
+
+# ============================================================
+# v3: 대시보드 DetailModal 대화 탭 통합
+# ============================================================
+
+$Dashboard.DetailModal.v3:
+  # chat 탭에서 실제 대화 기록 표시 (v2 placeholder 교체)
+
+  ? active_tab == "chat":
+    messages = $ConversationLogSource.load_messages(card._parsed.filePath)
+
+    ? messages |> length() == 0:
+      UI empty_chat:
+        UI text: "대화 기록이 없습니다"
+        CLK import_log_btn:
+          file <- File.open(accept = ".md,.json")
+          $ProjectRegistry.v3.import_log(card._registered_id, file)
+
+    ? messages |> length() > 0:
+      UI conversation_timeline:
+        * msg in messages:
+          $Card.MessageBubble(msg)    # v1 메시지 말풍선 재사용
+
+# ============================================================
+# v3: FSM 액션 (Dashboard에서 /approve, /reject 실행)
+# ============================================================
+
+$Dashboard.Actions:
+  # 카드(프로젝트)에 대해 FSM 전이 액션 실행
+  # state.md 파일을 직접 수정할 수 없으므로 (브라우저 제한),
+  # "다음에 할 일"을 안내하고 상태를 로컬에서 시뮬레이션
+
+  # [MVP] 로컬 시뮬레이션 (state.md 실제 수정 없음)
+  approve(project_id: String):
+    project = $ProjectRegistry.find(project_id)
+    current_state = project._parsed.state
+    next_state = FSM_TRANSITION_MAP.approve[current_state]
+    ? next_state:
+      # 로컬 상태만 업데이트 (UI 반영)
+      project._parsed.state = next_state
+      # 사용자에게 안내: "실제 state.md 파일도 업데이트하세요"
+      UI toast: "✅ " + current_state + " → " + next_state + " 전이. state.md 파일도 수정해주세요."
+
+  reject(project_id: String):
+    project = $ProjectRegistry.find(project_id)
+    current_state = project._parsed.state
+    next_state = FSM_TRANSITION_MAP.reject[current_state]
+    ? next_state:
+      project._parsed.state = next_state
+      UI toast: "🔙 " + current_state + " → " + next_state + " 롤백. state.md 파일도 수정해주세요."
+
+  FSM_TRANSITION_MAP:
+    approve:
+      SPEC_REVIEW: IMPLEMENTING
+      PENDING_APPROVAL: MERGED
+    reject:
+      SPEC_REVIEW: BACKLOG
+      PENDING_APPROVAL: IMPLEMENTING
+
+  # [미래] File System Access API로 state.md 직접 수정
+  # [미래] API 서버 경유 state.md 원격 수정
+
+# ============================================================
+# v3: 파일 리프레시
+# ============================================================
+
+$Dashboard.FileRefresh:
+  # 등록된 프로젝트의 state.md를 다시 읽어 최신 상태로 갱신
+
+  # 개별 리프레시 (파일 피커 재선택)
+  refresh_project(project_id: String):
+    file <- File.open(accept = ".md")
+    TX:
+      content <- file.text()
+      project = $ProjectRegistry.find(project_id)
+      project.file_content = content
+      project.last_updated = iso8601()
+      $ProjectRegistry.save_projects()
+      # 대시보드 보드 재빌드
+      $Dashboard.View.refresh()
+    FAIL err:
+      $Dashboard.ProjectManager.error_message = "리프레시 실패: " + err.message
+
+  # 전체 리프레시 (모든 프로젝트 순차 리프레시)
+  refresh_all():
+    * project in $ProjectRegistry.projects:
+      refresh_project(project.id)
+
+  # [미래] File System Access API — 파일 핸들 저장 → 자동 재읽기
+  # [미래] FileSystemObserver API — 파일 변경 감지 → 자동 리프레시
+
+# ============================================================
 # 테스트 전략
 # ============================================================
 
@@ -831,12 +996,20 @@ $App.Root.v2:
 [x] 통합: 새로고침_후_보드_및_메시지_히스토리_완전_복원
 [x] 통합: VITE_ADAPTER_MODE_전환_시_어댑터_경로_변경_검증
 
-# --- v2 테스트 (신규) ---
-[_] 단위: $StateFileParser.parse 정상_state.md_→_ParsedProject_변환
-[_] 단위: $StateFileParser.parse 손상된_파일_→_graceful_에러_ParsedProject
-[_] 단위: $StateFileParser @PROGRESS_체크박스_상태_분류 ([x]/[-]/[_])
-[_] 단위: $StateFileParser @FEATURES_test_status_파싱 (pass/fail/pending)
-[_] 단위: $ProjectRegistry.add_manual 수동_등록_→_localStorage_저장_검증
-[_] 단위: $ProjectRegistry.remove_project 삭제_→_리스트_갱신_검증
-[_] 통합: 파일_피커_임포트_→_파싱_→_대시보드_칼럼_배치
-[_] 통합: 복수_프로젝트_등록_→_FSM_상태별_칼럼_정확_분류
+# --- v2 테스트 (완료) ---
+[x] 단위: $StateFileParser.parse 정상_state.md_→_ParsedProject_변환
+[x] 단위: $StateFileParser.parse 손상된_파일_→_graceful_에러_ParsedProject
+[x] 단위: $StateFileParser @PROGRESS_체크박스_상태_분류 ([x]/[-]/[_])
+[x] 단위: $StateFileParser @FEATURES_test_status_파싱 (pass/fail/pending)
+[x] 단위: $ProjectRegistry.add_manual 수동_등록_→_localStorage_저장_검증
+[x] 단위: $ProjectRegistry.remove_project 삭제_→_리스트_갱신_검증
+[x] 통합: 파일_피커_임포트_→_파싱_→_대시보드_칼럼_배치
+[x] 통합: 복수_프로젝트_등록_→_FSM_상태별_칼럼_정확_분류
+
+# --- v3 테스트 (신규) ---
+[_] 단위: $LocalLogAdapter.parse_log JSON_대화_로그_→_Message_배열_변환
+[_] 단위: $LocalLogAdapter.parse_markdown_chat MD_대화_로그_파싱
+[_] 단위: $Dashboard.Actions.approve FSM_전이_정확성 (SPEC_REVIEW→IMPLEMENTING)
+[_] 단위: $Dashboard.Actions.reject FSM_롤백_정확성 (PENDING_APPROVAL→IMPLEMENTING)
+[_] 통합: 대화_로그_임포트_→_chat_탭_메시지_표시
+[_] 통합: 리프레시_→_state.md_갱신_→_카드_칼럼_이동_확인

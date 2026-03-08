@@ -11,3 +11,10 @@ export function getAdapter(): DataAdapter {
     }
     return new ManualAdapter();
 }
+
+export type ViewMode = 'manual' | 'dashboard';
+
+export function getViewMode(): ViewMode {
+    if (adapterMode === 'dashboard') return 'dashboard';
+    return 'manual';
+}
