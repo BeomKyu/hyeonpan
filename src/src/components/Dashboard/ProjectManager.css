@@ -1,0 +1,204 @@
+.project-manager {
+    margin-bottom: 8px;
+}
+
+.pm-toggle {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #aaa;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.pm-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ccc;
+}
+
+.pm-count {
+    background: rgba(138, 96, 255, 0.2);
+    color: #b8a0ff;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    margin-left: 6px;
+}
+
+.pm-panel {
+    margin-top: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pm-error {
+    background: rgba(255, 80, 60, 0.15);
+    border: 1px solid rgba(255, 80, 60, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ff8070;
+    font-size: 0.8rem;
+}
+
+.pm-error button {
+    background: none;
+    border: none;
+    color: #ff8070;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.pm-onboarding {
+    background: rgba(138, 96, 255, 0.08);
+    border: 1px solid rgba(138, 96, 255, 0.2);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.pm-onboarding h4 {
+    margin: 0 0 10px;
+    color: #b8a0ff;
+    font-size: 0.9rem;
+}
+
+.pm-onboarding ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #999;
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.pm-onboarding code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+}
+
+.pm-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pm-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.pm-label {
+    flex: 1;
+    color: #ccc;
+}
+
+.pm-source {
+    color: #666;
+    font-size: 0.7rem;
+}
+
+.pm-remove {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 4px;
+}
+
+.pm-remove:hover {
+    color: #ff6050;
+}
+
+.pm-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.pm-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pm-btn--picker {
+    background: rgba(138, 96, 255, 0.2);
+    color: #b8a0ff;
+}
+
+.pm-btn--picker:hover {
+    background: rgba(138, 96, 255, 0.3);
+}
+
+.pm-btn--add {
+    background: rgba(60, 200, 120, 0.2);
+    color: #6cdb8a;
+}
+
+.pm-btn--add:hover {
+    background: rgba(60, 200, 120, 0.3);
+}
+
+.pm-btn--add:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pm-manual-section {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.pm-manual-section summary {
+    color: #888;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.pm-manual-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.pm-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #ccc;
+    font-size: 0.8rem;
+}
+
+.pm-textarea {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #ccc;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    resize: vertical;
+}

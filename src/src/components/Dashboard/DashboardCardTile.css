@@ -1,0 +1,143 @@
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dashboard-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(138, 96, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.dashboard-card.needs-human {
+    border-color: rgba(255, 170, 50, 0.4);
+    box-shadow: 0 0 12px rgba(255, 170, 50, 0.1);
+}
+
+.dashboard-card__title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary, #e0e0e6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-card__badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.badge--state {
+    background: rgba(138, 96, 255, 0.2);
+    color: #b8a0ff;
+}
+
+.badge--state.badge--backlog {
+    background: rgba(120, 120, 140, 0.2);
+    color: #999;
+}
+
+.badge--state.badge--spec_analyze,
+.badge--state.badge--spec_review {
+    background: rgba(60, 140, 255, 0.2);
+    color: #6ab0ff;
+}
+
+.badge--state.badge--implementing,
+.badge--state.badge--test_running {
+    background: rgba(60, 200, 120, 0.2);
+    color: #6cdb8a;
+}
+
+.badge--state.badge--adversarial_review {
+    background: rgba(255, 170, 50, 0.2);
+    color: #ffc060;
+}
+
+.badge--state.badge--pending_approval {
+    background: rgba(255, 100, 80, 0.2);
+    color: #ff8070;
+}
+
+.badge--state.badge--merged {
+    background: rgba(80, 200, 160, 0.2);
+    color: #60d0a0;
+}
+
+.badge--actor {
+    background: rgba(255, 255, 255, 0.06);
+    color: #aaa;
+}
+
+.badge--actor.badge--human {
+    background: rgba(255, 170, 50, 0.2);
+    color: #ffaa32;
+    font-weight: 700;
+}
+
+.dashboard-card__progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8a60ff, #60c0ff);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.progress-label {
+    font-size: 0.65rem;
+    color: #888;
+    min-width: 28px;
+    text-align: right;
+}
+
+.dashboard-card__meta {
+    display: flex;
+    gap: 6px;
+}
+
+.meta-badge {
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.meta-badge--test {
+    background: rgba(60, 200, 120, 0.15);
+    color: #6cdb8a;
+}
+
+.meta-badge--review {
+    background: rgba(60, 140, 255, 0.15);
+    color: #6ab0ff;
+}

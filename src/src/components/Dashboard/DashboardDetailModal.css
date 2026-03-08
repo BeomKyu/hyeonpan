@@ -1,0 +1,262 @@
+.dash-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+}
+
+.dash-modal {
+    background: var(--bg-surface, #1a1a2e);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    width: min(90vw, 700px);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease;
+}
+
+.dash-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dash-modal__title-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dash-modal__title-row h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary, #e0e0e6);
+}
+
+.dash-modal__badges {
+    display: flex;
+    gap: 6px;
+}
+
+.dash-modal__close {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.dash-modal__close:hover {
+    color: #fff;
+}
+
+.dash-modal__tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #888;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+    color: #bbb;
+}
+
+.tab-btn.active {
+    color: #b8a0ff;
+    border-bottom-color: #8a60ff;
+}
+
+.dash-modal__body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.dash-section {
+    margin-bottom: 20px;
+}
+
+.dash-section h3 {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: #b8a0ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-pct {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: 400;
+}
+
+.progress-bar--large {
+    height: 6px;
+    margin-bottom: 12px;
+}
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #ccc;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.checklist-item--done {
+    color: #6cdb8a;
+}
+
+.checklist-item--in_progress {
+    color: #6ab0ff;
+}
+
+.checklist-item--pending {
+    color: #777;
+}
+
+.checklist-icon {
+    font-size: 0.75rem;
+}
+
+.feature-label {
+    flex: 1;
+}
+
+.test-badge {
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.test-badge--pass {
+    background: rgba(60, 200, 120, 0.15);
+    color: #6cdb8a;
+}
+
+.test-badge--fail {
+    background: rgba(255, 80, 60, 0.15);
+    color: #ff6050;
+}
+
+.test-badge--pending {
+    background: rgba(255, 255, 255, 0.05);
+    color: #666;
+}
+
+.test-badge--manual_pass {
+    background: rgba(60, 200, 120, 0.1);
+    color: #50b870;
+}
+
+.dash-section--meta {}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.meta-key {
+    font-size: 0.65rem;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.meta-val {
+    font-size: 0.8rem;
+    color: #ccc;
+}
+
+.raw-content {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: #aaa;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.chat-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.chat-hint {
+    font-size: 0.75rem;
+    color: #555;
+    margin-top: 8px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
