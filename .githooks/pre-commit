@@ -1,5 +1,7 @@
 #!/bin/sh
 # Denavy Pre-commit Hook — FSM 상태 기반 spec/ 접근 통제
+# spec/spec.md, spec/dna/ = 명세(계약) → SPEC_ANALYZE에서만 수정 가능
+# spec/test/           = 테스트 구현  → SPEC_ANALYZE, IMPLEMENTING, TEST_RUNNING, MERGED 허용
 STATE_FILE=".denavy/state.md"
 if [ ! -f "$STATE_FILE" ]; then
     exit 0
@@ -8,11 +10,28 @@ STATE=$(grep "^state:" "$STATE_FILE" | sed 's/^state:[[:space:]]*//' | tr -d '[:
 if [ -z "$STATE" ]; then
     exit 0
 fi
-SPEC_CHANGED=$(git diff --cached --name-only | grep "^spec/")
-if [ -n "$SPEC_CHANGED" ] && [ "$STATE" != "SPEC_ANALYZE" ]; then
+
+# 명세 문서 (spec.md, dna/) 변경 감지 — test/ 제외
+SPEC_DOC_CHANGED=$(git diff --cached --name-only | grep "^spec/" | grep -v "^spec/test/")
+if [ -n "$SPEC_DOC_CHANGED" ] && [ "$STATE" != "SPEC_ANALYZE" ]; then
     echo ""
-    echo "❌ Denavy: spec/ 수정 차단 (현재: $STATE, 허용: SPEC_ANALYZE)"
+    echo "❌ Denavy: spec/ 명세 문서 수정 차단 (현재: $STATE, 허용: SPEC_ANALYZE)"
     echo ""
     exit 1
 fi
+
+# 테스트 파일 (spec/test/) 변경 감지
+SPEC_TEST_CHANGED=$(git diff --cached --name-only | grep "^spec/test/")
+if [ -n "$SPEC_TEST_CHANGED" ]; then
+    case "$STATE" in
+        SPEC_ANALYZE|IMPLEMENTING|TEST_RUNNING|MERGED) ;;
+        *)
+            echo ""
+            echo "❌ Denavy: spec/test/ 수정 차단 (현재: $STATE, 허용: SPEC_ANALYZE|IMPLEMENTING|TEST_RUNNING|MERGED)"
+            echo ""
+            exit 1
+            ;;
+    esac
+fi
+
 exit 0
