@@ -623,6 +623,14 @@ $Dashboard.View:
 
     => board
 
+  # 빈 칼럼 접기 토글
+  ST collapse_empty: Bool = false
+
+  get_visible_columns(board: $Model.Board): List($Model.Column)
+    ? collapse_empty:
+      => board.columns |> filter(c: c.card_ids |> length() > 0)
+    => board.columns
+
 # ============================================================
 # v2: 대시보드 카드 타일 (확장)
 # ============================================================
@@ -669,12 +677,13 @@ $Dashboard.DetailModal(card_id: String):
           UI state_badge: card._parsed.state
           UI actor_badge: card._parsed.actor
 
-      # 탭 UI: "프로젝트 정보" | "대화" (v1 호환)
+      # 탭 UI: "프로젝트 정보" | "원본" | "대화" (v1 호환)
       ST active_tab: String = "info"
 
       UI tab_bar:
-        CLK tab_info:  active_tab = "info"
-        CLK tab_chat:  active_tab = "chat"
+        CLK tab_info:    active_tab = "info"
+        CLK tab_raw:     active_tab = "raw"
+        CLK tab_chat:    active_tab = "chat"
 
       ? active_tab == "info":
         # @PROGRESS 시각화
@@ -703,6 +712,12 @@ $Dashboard.DetailModal(card_id: String):
           ? card._parsed.review_score:
             UI meta_row: "review: " + card._parsed.review_score
 
+      ? active_tab == "raw":
+        # state.md 원본 전문 표시
+        UI raw_content_section:
+          UI raw_pre: card._parsed.raw_content
+            # 모노스페이스, 스크롤 가능
+
       ? active_tab == "chat":
         # 기존 v1 대화 타임라인 (재사용)
         $Card.DetailModal.conversation_timeline(card)
@@ -715,7 +730,24 @@ $Dashboard.DetailModal(card_id: String):
 # ============================================================
 
 $Dashboard.ProjectManager:
+  ST error_message: String | null = null
+
   UI project_manager_panel:
+    # 에러 토스트 (파일 읽기 실패 등)
+    ? error_message != null:
+      UI error_toast:
+        UI error_text: error_message
+        CLK dismiss_btn:
+          error_message = null
+
+    # 빈 프로젝트 리스트 → 온보딩 가이드
+    ? $ProjectRegistry.projects |> length() == 0:
+      UI onboarding_guide:
+        UI guide_title: "프로젝트를 추가하세요"
+        UI guide_step_1: "1. 아래 '파일 선택' 버튼으로 .denavy/state.md 파일을 임포트하세요"
+        UI guide_step_2: "2. 또는 '수동 등록' 폼에 state.md 내용을 직접 붙여넣기하세요"
+        UI guide_step_3: "3. 등록된 프로젝트가 FSM 상태별 칼럼에 자동 배치됩니다"
+
     # 등록된 프로젝트 목록
     * project in $ProjectRegistry.projects:
       UI project_row:
@@ -738,8 +770,11 @@ $Dashboard.ProjectManager:
 
     # 파일 피커
     CLK file_picker_btn:
-      file <- File.open(accept = ".md")
-      $ProjectRegistry.add_from_picker(file)
+      TX:
+        file <- File.open(accept = ".md")
+        $ProjectRegistry.add_from_picker(file)
+      FAIL err:
+        error_message = "파일을 열 수 없습니다: " + err.message
 
 # ============================================================
 # v2: Config 확장
