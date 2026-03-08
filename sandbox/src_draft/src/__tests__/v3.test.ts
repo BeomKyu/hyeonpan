@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { parseJsonLog, parseMarkdownChat, MAX_LOG_FILE_SIZE } from '../../sandbox/src_draft/src/parsers/conversationLogParser';
+import { parseJsonLog, parseMarkdownChat, MAX_LOG_FILE_SIZE } from '../parsers/conversationLogParser';
 
 // ============================================================
 // v3 테스트: 대화 로그 파서 + FSM 액션
@@ -198,8 +198,8 @@ describe('$LocalLogAdapter — MD 대화 로그 파싱', () => {
 // $Dashboard.Actions — FSM 전이 테스트
 // ============================================================
 
-import { FSM_TRANSITION_MAP, ACTIONABLE_STATES } from '../../sandbox/src_draft/src/models/dashboardTypes';
-import { isActionable } from '../../sandbox/src_draft/src/hooks/useDashboard';
+import { FSM_TRANSITION_MAP, ACTIONABLE_STATES } from '../models/dashboardTypes';
+import { isActionable } from '../hooks/useDashboard';
 
 describe('$Dashboard.Actions — FSM 전이', () => {
     // --- approve 테스트 ---
@@ -281,4 +281,3 @@ describe('\\r\\n 호환성', () => {
         expect(messages[0].diff).toContain('+new');
     });
 });
-
