@@ -1,0 +1,18 @@
+#!/bin/sh
+# Denavy Pre-commit Hook — FSM 상태 기반 spec/ 접근 통제
+STATE_FILE=".denavy/state.md"
+if [ ! -f "$STATE_FILE" ]; then
+    exit 0
+fi
+STATE=$(grep "^state:" "$STATE_FILE" | sed 's/^state:[[:space:]]*//' | tr -d '[:space:]')
+if [ -z "$STATE" ]; then
+    exit 0
+fi
+SPEC_CHANGED=$(git diff --cached --name-only | grep "^spec/")
+if [ -n "$SPEC_CHANGED" ] && [ "$STATE" != "SPEC_ANALYZE" ]; then
+    echo ""
+    echo "❌ Denavy: spec/ 수정 차단 (현재: $STATE, 허용: SPEC_ANALYZE)"
+    echo ""
+    exit 1
+fi
+exit 0
